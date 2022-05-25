@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 
+type Feeling = 'sunny' | 'cloudy' | 'rainy';
+
 type Todo = {
   value: string;
   readonly id: number;
   checked: boolean;
   removed: boolean;
+  feeling: Feeling;
 };
 
 type Filter = 'all' | 'checked' | 'unchecked' | 'removed';
@@ -13,6 +16,7 @@ export const App = () => {
   const [text, setText] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
+  const [feel, setFeel] = useState<Feeling>('sunny');
 
   const filteredTodos = todos.filter((todo) => {
     // filter ステートの値に応じて異なる内容の配列を返す
@@ -41,6 +45,7 @@ export const App = () => {
       id: new Date().getTime(),
       checked: false,
       removed: false,
+      feeling: feel,
     };
 
     setTodos([newTodo, ...todos]);
@@ -95,6 +100,21 @@ export const App = () => {
     const newTodos = todos.filter((todo) => !todo.removed);
     setTodos(newTodos);
   };
+
+  const handleOnFeel = (id: number, feeling: Feeling) => {
+    const deepCopy = todos.map((todo) => ({...todo}));
+
+    const newTodos = deepCopy.map((todo) => {
+      if(todo.id == id){
+        todo.feeling = feeling
+      }
+      console.log(todo.feeling)
+      console.log(feeling)
+      return todo;
+    });
+    setFeel(feeling)
+    setTodos(newTodos);
+  }
 
   return (
     <div>
@@ -155,6 +175,14 @@ export const App = () => {
               <button onClick={() =>handleOnRemove(todo.id, todo.removed)}>
                 {todo.removed ? '復元' : '削除'}
               </button>
+              <select
+                defaultValue="0"
+                onChange={(e) => handleOnFeel(todo.id, e.target.value as Feeling)}
+              >
+                <option value="sunny">☀️</option>
+                <option value="cloudy">☁️</option>
+                <option value="rainy">☔️</option>
+              </select>
             </li>
           );
         })}
